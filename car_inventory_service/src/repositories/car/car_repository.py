@@ -8,7 +8,7 @@ class ICarRepository(ABC):
     Interface for car repositories, definning the basic CRUD operations for car data
     """
     @abstractmethod
-    def insert(self, entity: Car) -> None:
+    def insert(self, entity: Car) -> bool:
         """
         insert a new car
         :param entity: information about the car
