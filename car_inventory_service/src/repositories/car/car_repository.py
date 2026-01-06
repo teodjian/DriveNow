@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
-
-from car_inventory_service.src.models.car import Car
+from car_inventory_service.src.models.car import Car, CarStatus
 
 
 class ICarRepository(ABC):
@@ -17,10 +16,11 @@ class ICarRepository(ABC):
         """
 
     @abstractmethod
-    def update(self, entity: Car) -> bool:
+    def update(self, identifier: str, new_status: CarStatus) -> bool:
         """
-        update the car information
-        :param entity:
+        update the car status
+        :param identifier: car identifier
+        :param new_status: the new status of the car to update
         :return:
         """
 
@@ -33,7 +33,7 @@ class ICarRepository(ABC):
         """
 
     @abstractmethod
-    def query_all(self) -> Optional[List[Car]]:
+    def query_all(self, status: Optional[CarStatus] = None) -> Optional[List[Car]]:
         """
         query all cars
         :return: return all the cars
