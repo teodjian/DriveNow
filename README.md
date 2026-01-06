@@ -2,16 +2,19 @@
 Home exercise 5.1-8.1
 ## My System Architecture
 <p>
-  <img src="media_files/system_architecture.png" width="857" title="Project Logo" alt="">
+  <img src="media_files/system_architecture2.png" width="998" title="Project Logo" alt="">
 </p>
-The system is designed as a Microservices Architecture, that split to two services: Car Inventory Service and Booking Service. 
+The system is designed as a Microservices Architecture, that split to few services. 
 This design prioritizes Separation of Concerns, Scalability, and Data Integrity.
 
 - Booking Service - handles the business logic of renting cars, Validates and creates new rental reservations.
 - Car Inventory service - manager of the cars stock. It is the only service authorized to modify cars data, responds to 
-HTTP requests from the Booking Service to confirm if a specific car is currently available. get messages from RabbitMQ, 
-When a car is booked or returned, it automatically updates the car state.
-- API - Acts as the single entry point for all client requests.
+HTTP requests from the Booking Service to confirm if a specific car is currently available.
+- API Gateway - Acts as the single entry point for all client requests. and load balancer
+- User Service - handle the lifecycle of the user object  
+- Auth & payment - additional services that can be integrated as future features to the car rental system. 
+These are built-in services that require only configuration to be enabled, and they offer multiple options depending 
+on the environment in which the system is deployed
 
 ### Why PostgreSQL?
 PostgreSQL was selected as the relational database for this system for the following reasons:
@@ -19,15 +22,17 @@ PostgreSQL was selected as the relational database for this system for the follo
 - Structured Relational Data: The main objects (Cars and Rentals) are structured and have strict schema, 
 making a relational database superior to a NoSQL DB.
 
-- ACID Compliance: PostgreSQL provides robust ACID compliance. This ensures that if a booking fails midway, 
-the database rolls back completely, preventing corrupted "half-saved" records.
+- ACID Compliance: PostgreSQL provides robust ACID compliance. 
+Transactions will be automic, leave the DB in a consistent state, not interfere with each other, and the DB will be durable.
 
-- Concurrency Control: PostgreSQL's MVCC excels at handling race conditions. 
-It allows the Inventory Service to serve read requests (browsing cars) efficiently without being blocked by simultaneous 
-write operations (new bookings) occurring in the Booking Service that allow multiple users in the same time.
+- PostgreSQL is less suitable for horizontal scaling because it doesn't provide built-in sharding and replication features. 
+As a result, these features must be managed manually if we'd like to introduce them, which increases operational complexity.
+Although, if we choose not to introduce them, the database will only have one instance and will become less reliable.
+Despite this, for now one instance of PostgreSQL (which can be vertically scaled) will satisfy our system requirements, 
+as correctness is the most critical requirement in our system.
 
-### Why RabbitMQ?
-By using RabbitMQ, the Booking Service saves the rental and immediately says "Success" to the user. 
-The "Update Car Status" task is sent to the queue to be handled in the background.
-This makes the application feel much faster and more responsive. in addition, if the Inventory Service goes offline,
-the Booking Service can still accept bookings, and the system is continuing to work.
+### Why use blocking Request-Response communication between booking and car inventory services?
+Between the booking service and the car inventory service we require request-response communication because, 
+when a user attempts to book a car, the system must **immediately** return a response indicating whether the operation succeeded or failed. 
+message brokers are unidirectional communication that occur eventually and are therefore not suitable in this scenario
+because it cannot return an immediate response, making it impossible to provide real time response to the user.
