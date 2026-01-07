@@ -11,8 +11,7 @@ class LoggerConfig(BaseModel):
     )
 
 class PostgresqlConfig(BaseModel):
-    database_type: Literal["postgresql"]
-    connection_string: PostgresDsn
+    database_url: PostgresDsn
     table_name: str
 
 class RestAPIConfig(BaseModel):
@@ -21,7 +20,7 @@ class RestAPIConfig(BaseModel):
 class Config(BaseModel):
     database: PostgresqlConfig
     logging : LoggerConfig
-    restapi : RestAPIConfig
+    server_api : RestAPIConfig
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
