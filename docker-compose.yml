@@ -80,7 +80,7 @@ services:
       - ./booking_service/configuration.docker.yaml:/app/booking_service/configuration.yaml
     environment:
       DATABASE_URL: postgresql://user:password@booking_db:5432/booking_db
-      CONFIG_PATH: "/app/booking_service/configuration.yaml"
+      BOOKING_CONFIG_PATH: "/app/booking_service/configuration.yaml"
 
 
 volumes:
