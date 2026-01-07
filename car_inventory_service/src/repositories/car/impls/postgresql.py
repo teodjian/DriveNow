@@ -4,8 +4,8 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker, Session
 from car_inventory_service.src.models.car import Car, CarStatus
 from car_inventory_service.src.models.car_postgres_model import Base, CarDbModel
-from car_inventory_service.src.repositories.car.car_repository import ICarRepository
-
+from car_inventory_service.src.repositories.car.car_repository import ICarRepository, EntityNotExistsError, \
+    EntityAlreadyExistsError
 
 
 class PostgresCarRepository(ICarRepository):
@@ -18,36 +18,33 @@ class PostgresCarRepository(ICarRepository):
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
 
-    def insert(self, entity: Car) -> bool:
+    def insert(self, entity: Car) -> None:
         session: Session = self.SessionLocal()
         try:
             db_car = CarDbModel.from_domain(entity)
             session.add(db_car)
             session.commit()
             self.logger.debug(f"car {entity.id} is successfully added to database")
-            return True
         except Exception as e:
             self.logger.error(f"car {entity.id} is not successfully added to database {e}")
             session.rollback()
-            return False
+            raise EntityAlreadyExistsError(f"Car with {entity.id} already exists")
         finally:
             session.close()
 
-    def update(self, identifier: str, new_status: CarStatus) -> bool:
+    def update(self, identifier: str, new_status: CarStatus) -> None:
         session: Session = self.SessionLocal()
         try:
             db_car = session.get(CarDbModel, identifier)
             if not db_car:
-                self.logger.warning(f"car {identifier} is not found in database")
-                return False
+                self.logger.warning(f"car {identifier} is not found in during the update")
+                raise EntityNotExistsError(f"car with {identifier} not found")
             db_car.model = new_status
             session.commit()
             self.logger.debug(f"car {identifier} is successfully updated in database")
-            return True
         except Exception as e:
             session.rollback()
             self.logger.error(f"car {identifier} is not successfully updated in database {e}")
-            return False
         finally:
             session.close()
 
@@ -58,11 +55,11 @@ class PostgresCarRepository(ICarRepository):
             if db_car:
                 self.logger.debug(f"car {identifier} is successfully found in database")
                 return db_car.to_domain()
-
             self.logger.warning(f"car {identifier} is not found in database")
             return None
         except Exception as e:
             self.logger.error(f"failed to query car {identifier}: {e}")
+            raise EntityNotExistsError(f"car with {identifier} not found")
         finally:
             session.close()
 

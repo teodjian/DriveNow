@@ -1,16 +1,17 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, Any
 from pydantic import BaseModel, PostgresDsn, ConfigDict
 
 
 class LoggerConfig(BaseModel):
     logger_name: str
-    log_level: str = "INFO"
-    enable_console: bool = True
-    log_file_path: Optional[str] = None
+    logging_dict: dict[str, Any]
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
 
 class PostgresqlConfig(BaseModel):
-    database_type: Literal["postgresql"]
-    connection_string: PostgresDsn
+    database_url: PostgresDsn
     table_name: str
 
 class RestAPIConfig(BaseModel):
@@ -19,7 +20,7 @@ class RestAPIConfig(BaseModel):
 class Config(BaseModel):
     database: PostgresqlConfig
     logging : LoggerConfig
-    restapi : RestAPIConfig
+    server_api : RestAPIConfig
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
