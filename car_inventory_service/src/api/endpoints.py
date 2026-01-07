@@ -7,7 +7,7 @@ from car_inventory_service.src.commands.car_impls.get_all_cars import GetAllCars
 from car_inventory_service.src.commands.car_impls.get_car_by_id import GetCarById
 from car_inventory_service.src.commands.car_impls.insert_car import InsertCar
 from car_inventory_service.src.commands.car_impls.update_car import UpdateCar
-from car_inventory_service.src.models.car import Car, CarStatus
+from car_inventory_service.src.models.car import Car, CarStatus, CarToUpdate
 from fastapi import APIRouter, Response
 from car_inventory_service.src.repositories.car.init_car_repo import create_car_repo
 from car_inventory_service.src.singleton.impls.configuration import Configuration
@@ -33,7 +33,7 @@ async def get_car_by_id(identifier: UUID4):
 
 
 @router.put("/car_inventory/update_status")
-async def update_car(car: Car):
+async def update_car(car: CarToUpdate):
     command = UpdateCar(repository=repository, logger=service_logger, car=car)
     command.execute()
 
