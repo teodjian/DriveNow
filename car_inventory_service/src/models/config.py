@@ -15,6 +15,7 @@ class PostgresqlConfig(BaseModel):
     table_name: str
 
 class RestAPIConfig(BaseModel):
+    host: str
     port: int
 
 class Config(BaseModel):

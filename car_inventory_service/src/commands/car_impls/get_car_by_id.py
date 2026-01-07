@@ -10,4 +10,4 @@ class GetCarById(ICommand):
         self._car_id = car_id
 
     def execute(self):
-        self._repository.query_one(str(self._car_id))
+        return self._repository.query_one(str(self._car_id))

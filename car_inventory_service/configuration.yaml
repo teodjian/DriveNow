@@ -1,5 +1,5 @@
 database:
-  database_url: postgresql://user:password@localhost:5432/mydatabas
+  database_url: postgresql://myuser:mypassword@localhost:5432/mydatabase
   table_name: "cars"
 
 logging:

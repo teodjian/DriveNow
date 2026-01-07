@@ -13,4 +13,4 @@ class GetAllCars(ICommand):
         self._status = status
 
     def execute(self):
-        self._repository.query_all(self._status)
+        return self._repository.query_all(self._status)

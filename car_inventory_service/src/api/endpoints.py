@@ -28,7 +28,8 @@ async def metrics():
 @router.get("/car_inventory/car_by_id/{identifier}")
 async def get_car_by_id(identifier: UUID4):
     command = GetCarById(repository=repository, logger=service_logger, car_id=identifier)
-    command.execute()
+    result = command.execute()
+    return result
 
 
 @router.put("/car_inventory/update_status")
@@ -41,13 +42,14 @@ async def update_car(car: Car):
 async def get_all_cars(filter_status: Optional[CarStatus] = None):
     command = GetAllCars(repository=repository, logger=service_logger, status=filter_status)
     start_time = time.time()
-    command.execute()
+    result =command.execute()
     duration = time.time() - start_time
     observe_latency(
         method="GET",
         endpoint="/car_inventory/all_cars",
         duration=duration
     )
+    return result
 
 
 @router.post("/car_inventory/car")
