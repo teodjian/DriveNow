@@ -1,15 +1,15 @@
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, String, Integer,UUID, Enum as SAEnum
 from car_inventory_service.src.models.car import Car, CarStatus
-
+from car_inventory_service.src.singleton.impls.configuration import Configuration
 
 Base = declarative_base()
 
 class CarDbModel(Base):
     """
-    SQLAlchemy ORM model representing the 'cars' table in PostgreSQL.
+    SQLAlchemy ORM model representing table in PostgreSQL.
     """
-    __tablename__ = 'cars' # TODO: change with
+    __tablename__ = Configuration().settings.database.table_name
 
     id = Column(UUID, primary_key=True)
     model = Column(String, nullable=False)
