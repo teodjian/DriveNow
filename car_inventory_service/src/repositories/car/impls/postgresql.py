@@ -6,6 +6,7 @@ from car_inventory_service.src.models.car import Car, CarStatus
 from car_inventory_service.src.models.car_postgres_model import Base, CarDbModel
 from car_inventory_service.src.repositories.car.car_repository import ICarRepository, EntityNotExistsError, \
     EntityAlreadyExistsError
+from car_inventory_service.src.utils.metrics import add_car_inventory_count, remove_car_inventory_count
 
 
 class PostgresCarRepository(ICarRepository):
@@ -24,6 +25,7 @@ class PostgresCarRepository(ICarRepository):
             db_car = CarDbModel.from_domain(entity)
             session.add(db_car)
             session.commit()
+            add_car_inventory_count(status=entity.status, model=entity.model)
             self.logger.debug(f"car {entity.id} is successfully added to database")
         except Exception as e:
             self.logger.error(f"car {entity.id} is not successfully added to database {e}")
@@ -39,7 +41,10 @@ class PostgresCarRepository(ICarRepository):
             if not db_car:
                 self.logger.warning(f"car {identifier} is not found in during the update")
                 raise EntityNotExistsError(f"car with {identifier} not found")
-            db_car.model = new_status
+            car = db_car.to_domain()
+            remove_car_inventory_count(status=car.status, model=car.model)
+            db_car.status = new_status
+            add_car_inventory_count(status=new_status, model=car.model)
             session.commit()
             self.logger.debug(f"car {identifier} is successfully updated in database")
         except Exception as e:
