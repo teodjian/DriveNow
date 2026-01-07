@@ -1,5 +1,5 @@
 from car_inventory_service.src.models.car import CarStatus
-from car_inventory_service.src.singleton.metrics import CarInventoryMetrics
+from car_inventory_service.src.singleton.impls.metrics import CarInventoryMetrics
 
 inventory_metrics = CarInventoryMetrics()
 
