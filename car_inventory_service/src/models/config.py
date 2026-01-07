@@ -1,12 +1,14 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, Any
 from pydantic import BaseModel, PostgresDsn, ConfigDict
 
 
 class LoggerConfig(BaseModel):
     logger_name: str
-    log_level: str = "INFO"
-    enable_console: bool = True
-    log_file_path: Optional[str] = None
+    logging_dict: dict[str, Any]
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
 
 class PostgresqlConfig(BaseModel):
     database_type: Literal["postgresql"]
