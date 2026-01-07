@@ -1,4 +1,5 @@
 from typing import Optional
+from pydantic import UUID4
 from car_inventory_service.src.commands.car_impls.get_all_cars import GetAllCars
 from car_inventory_service.src.commands.car_impls.get_car_by_id import GetCarById
 from car_inventory_service.src.commands.car_impls.insert_car import InsertCar
@@ -15,9 +16,9 @@ configuration = Configuration().settings
 repository = create_car_repo(config=configuration, logger=service_logger)
 
 
-@router.get("/car_inventory/car_by_id/")
-def get_car_by_id(car: Car):
-    command = GetCarById(repository=repository, logger=service_logger, car_id=car.id)
+@router.get("/car_inventory/car_by_id/{identifier}")
+def get_car_by_id(identifier: UUID4):
+    command = GetCarById(repository=repository, logger=service_logger, car_id=identifier)
     command.execute()
 
 

@@ -1,6 +1,4 @@
 from abc import ABCMeta
-from threading import Lock
-
 
 class SingletonMeta(ABCMeta):
     """

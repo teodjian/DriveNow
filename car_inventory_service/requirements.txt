@@ -1,0 +1,5 @@
+fastapi==0.128.0
+pydantic==2.12.5
+PyYAML==6.0.3
+SQLAlchemy==2.0.45
+uvicorn==0.40.0
