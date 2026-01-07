@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 from pydantic import UUID4
 from car_inventory_service.src.commands.car_impls.get_all_cars import GetAllCars
@@ -9,6 +10,7 @@ from fastapi import APIRouter
 from car_inventory_service.src.repositories.car.init_car_repo import create_car_repo
 from car_inventory_service.src.singleton.impls.configuration import Configuration
 from car_inventory_service.src.singleton.impls.logger import Logger
+from car_inventory_service.src.utils.metrics import observe_latency
 
 router = APIRouter()
 service_logger = Logger().logger
@@ -31,10 +33,24 @@ def update_car(car: Car):
 @router.get("/car_inventory/all_cars")
 def get_all_cars(filter_status: Optional[CarStatus] = None):
     command = GetAllCars(repository=repository, logger=service_logger, status=filter_status)
+    start_time = time.time()
     command.execute()
+    duration = time.time() - start_time
+    observe_latency(
+        method="GET",
+        endpoint="/car_inventory/all_cars",
+        duration=duration
+    )
 
 
 @router.post("/car_inventory/car")
 def create_car(car: Car):
     command = InsertCar(repository=repository, logger=service_logger, car=car)
+    start_time = time.time()
     command.execute()
+    duration = time.time() - start_time
+    observe_latency(
+        method="POST",
+        endpoint="/car_inventory/car",
+        duration=duration
+    )
