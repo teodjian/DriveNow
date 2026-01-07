@@ -1,12 +1,14 @@
 import time
 from typing import Optional
+
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from pydantic import UUID4
 from car_inventory_service.src.commands.car_impls.get_all_cars import GetAllCars
 from car_inventory_service.src.commands.car_impls.get_car_by_id import GetCarById
 from car_inventory_service.src.commands.car_impls.insert_car import InsertCar
 from car_inventory_service.src.commands.car_impls.update_car import UpdateCar
 from car_inventory_service.src.models.car import Car, CarStatus
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from car_inventory_service.src.repositories.car.init_car_repo import create_car_repo
 from car_inventory_service.src.singleton.impls.configuration import Configuration
 from car_inventory_service.src.singleton.impls.logger import Logger
@@ -18,20 +20,25 @@ configuration = Configuration().settings
 repository = create_car_repo(config=configuration, logger=service_logger)
 
 
+@router.get("/metrics")
+async def metrics():
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 @router.get("/car_inventory/car_by_id/{identifier}")
-def get_car_by_id(identifier: UUID4):
+async def get_car_by_id(identifier: UUID4):
     command = GetCarById(repository=repository, logger=service_logger, car_id=identifier)
     command.execute()
 
 
 @router.put("/car_inventory/update_status")
-def update_car(car: Car):
+async def update_car(car: Car):
     command = UpdateCar(repository=repository, logger=service_logger, car=car)
     command.execute()
 
 
 @router.get("/car_inventory/all_cars")
-def get_all_cars(filter_status: Optional[CarStatus] = None):
+async def get_all_cars(filter_status: Optional[CarStatus] = None):
     command = GetAllCars(repository=repository, logger=service_logger, status=filter_status)
     start_time = time.time()
     command.execute()
@@ -44,7 +51,7 @@ def get_all_cars(filter_status: Optional[CarStatus] = None):
 
 
 @router.post("/car_inventory/car")
-def create_car(car: Car):
+async def create_car(car: Car):
     command = InsertCar(repository=repository, logger=service_logger, car=car)
     start_time = time.time()
     command.execute()
