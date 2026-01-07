@@ -7,5 +7,5 @@ from car_inventory_service.src.utils.config import load_config
 
 class Configuration(metaclass=SingletonMeta):
     def __init__(self):
-        configuration_file_path = os.environ.get("CONFIG_PATH", ".\configuration.yaml")
+        configuration_file_path = os.getenv("CONFIG_PATH", ".\configuration.yaml")
         self.settings : Config = load_config(configuration_file_path)

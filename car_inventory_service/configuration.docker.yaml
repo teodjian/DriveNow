@@ -1,9 +1,9 @@
 database:
-  database_url: postgresql://myuser:mypassword@localhost:5432/mydatabase
-  table_name: "rentals"
+  database_url: postgresql://user:password@cars_inventory_db:5432/cars_inventory_db
+  table_name: "cars"
 
 logging:
-  logger_name: bookingLogger
+  logger_name: carInventoryLogger
   logging_dict:
     version: 1
     disable_existing_loggers: false
@@ -23,10 +23,6 @@ logging:
         handlers: [console]
         propagate: no
 
-car_inventory_api:
-  url_get_car: "http://localhost:3131/car_inventory/car_by_id/"
-  url_update_status: "http://localhost:3131/car_inventory/update_status/"
-
 server_api:
   host: "0.0.0.0"
-  port: 1313
+  port: 3131

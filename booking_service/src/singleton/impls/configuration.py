@@ -7,5 +7,5 @@ from booking_service.src.utils.config import load_config
 
 class Configuration(metaclass=SingletonMeta):
     def __init__(self):
-        configuration_file_path = os.environ.get("BOOKING_CONFIG_PATH", "C:\\Users\\Lenovo\\PycharmProjects\\DriveNow\\booking_service\\configuration.yaml")
+        configuration_file_path = os.getenv("BOOKING_CONFIG_PATH", "C:\\Users\\Lenovo\\PycharmProjects\\DriveNow\\booking_service\\configuration.yaml")
         self.settings : Config = load_config(configuration_file_path)
