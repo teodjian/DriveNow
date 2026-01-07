@@ -20,18 +20,27 @@ rental_repository = create_rental_repo(booking_configuration, booking_logger)
 async def metrics():
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
+
 @router.post("/booking/start_rental")
 async def start_rental(rental: Rental):
     inventory_service_configuration: CarInventoryApiConfig = booking_configuration.car_inventory_api
     connector = InventoryConnector(inventory_service_configuration, booking_logger)
     if connector.is_car_available(rental.car_id):
-        command = InsertNewRental(rental_repository, booking_logger, rental)
-        command.execute()
+        if connector.change_car_status(rental.car_id, "in_use"):
+            command = InsertNewRental(rental_repository, booking_logger, rental)
+            command.execute()
+        else:
+            raise HTTPException(status_code=400, detail="failed update car so no rental booked.")
     else:
         raise HTTPException(status_code=400, detail="Car is not available or does not exist.")
 
 
 @router.put("/booking/end_rental")
 async def end_rental(rental: Rental):
-    command = EndRental(rental_repository, booking_logger, rental)
-    command.execute()
+    inventory_service_configuration: CarInventoryApiConfig = booking_configuration.car_inventory_api
+    connector = InventoryConnector(inventory_service_configuration, booking_logger)
+    if connector.change_car_status(rental.car_id, "available"):
+        command = EndRental(rental_repository, booking_logger, rental)
+        command.execute()
+    else:
+        raise HTTPException(status_code=400, detail="failed to end car rental.")
