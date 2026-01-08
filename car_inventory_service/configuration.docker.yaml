@@ -1,0 +1,28 @@
+database:
+  database_url: postgresql://user:password@cars_inventory_db:5432/cars_inventory_db
+  table_name: "cars"
+
+logging:
+  logger_name: carInventoryLogger
+  logging_dict:
+    version: 1
+    disable_existing_loggers: false
+    formatters:
+      standard:
+        datefmt: "%d/%m/%Y %H:%M:%S"
+        format: '%(asctime)s | File: %(filename)s | %(levelname)s | %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: standard
+        stream: ext://sys.stdout
+    loggers:
+      carInventoryLogger:
+        level: DEBUG
+        handlers: [console]
+        propagate: no
+
+server_api:
+  host: "0.0.0.0"
+  port: 3131

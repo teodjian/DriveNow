@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------
+  # INFRASTRUCTURE
+  # ----------------------------------------------------------------
+
+  # FIX 1: Renamed 'cars_db' -> 'inventory_db' so 'depends_on' works below
+  inventory_db:
+    image: postgres:15
+    container_name: cars_inventory_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cars_inventory_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d cars_inventory_db"]
+      interval: 5s
+      retries: 5
+
+  booking_db:
+    image: postgres:15
+    container_name: booking_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: booking_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - booking_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d booking_db"]
+      interval: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------
+  # INVENTORY MICROSERVICE (Folder: car_inventory_service)
+  # ----------------------------------------------------------------
+
+  inventory_service:
+    build: ./car_inventory_service
+    container_name: inventory_service
+
+    command: python -m car_inventory_service.main
+    ports:
+      - "3131:3131"
+    depends_on:
+      inventory_db:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql://user:password@inventory_db:5432/cars_inventory_db
+      CONFIG_PATH: "/app/car_inventory_service/configuration.yaml"
+
+    volumes:
+      # FIX 5: Mount config FROM 'car_inventory_service' TO 'car_inventory_service'
+      - ./car_inventory_service/configuration.docker.yaml:/app/car_inventory_service/configuration.yaml
+
+  # ----------------------------------------------------------------
+  # BOOKING MICROSERVICE (Folder: booking_service)
+  # ----------------------------------------------------------------
+
+  booking_service:
+    build: ./booking_service
+    container_name: booking_service
+    command: python -m booking_service.main
+    ports:
+      - "1313:1313"
+    depends_on:
+      booking_db:
+        condition: service_healthy
+      inventory_service:
+        condition: service_started
+    volumes:
+      - ./booking_service/configuration.docker.yaml:/app/booking_service/configuration.yaml
+    environment:
+      DATABASE_URL: postgresql://user:password@booking_db:5432/booking_db
+      BOOKING_CONFIG_PATH: "/app/booking_service/configuration.yaml"
+
+
+volumes:
+  inventory_postgres_data:
+  booking_postgres_data:

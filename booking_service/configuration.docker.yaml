@@ -1,0 +1,32 @@
+database:
+  database_url: postgresql://user:password@booking_db:5432/booking_db
+  table_name: "rentals"
+
+logging:
+  logger_name: bookingLogger
+  logging_dict:
+    version: 1
+    disable_existing_loggers: false
+    formatters:
+      standard:
+        datefmt: "%d/%m/%Y %H:%M:%S"
+        format: '%(asctime)s | File: %(filename)s | %(levelname)s | %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: standard
+        stream: ext://sys.stdout
+    loggers:
+      carInventoryLogger:
+        level: DEBUG
+        handlers: [console]
+        propagate: no
+
+car_inventory_api:
+  url_get_car: "http://inventory_service:3131/car_inventory/car_by_id/"
+  url_update_status: "http://inventory_service:3131/car_inventory/update_status/"
+
+server_api:
+  host: "0.0.0.0"
+  port: 1313
