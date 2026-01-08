@@ -8,7 +8,7 @@ from car_inventory_service.src.commands.car_impls.get_car_by_id import GetCarByI
 from car_inventory_service.src.commands.car_impls.insert_car import InsertCar
 from car_inventory_service.src.commands.car_impls.update_car import UpdateCar
 from car_inventory_service.src.models.car import Car, CarStatus, CarToUpdate
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException
 from car_inventory_service.src.repositories.car.init_car_repo import create_car_repo
 from car_inventory_service.src.singleton.impls.configuration import Configuration
 from car_inventory_service.src.singleton.impls.logger import Logger
@@ -29,6 +29,8 @@ async def metrics():
 async def get_car_by_id(identifier: UUID4):
     command = GetCarById(repository=repository, logger=service_logger, car_id=identifier)
     result = command.execute()
+    if result is None:
+        raise HTTPException(status_code=404, detail="Car not found")
     return result
 
 
