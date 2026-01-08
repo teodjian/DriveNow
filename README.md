@@ -95,3 +95,22 @@ curl -X 'POST' \
   "year": 2024,
   "status": "available"
 }'
+```
+
+## 💻 Screenshots usage 
+Figure 1: Integration test result showing successful retrieval of all cars stored in the database
+<p>
+  <img src="media_files/usage_screenshots/car_inventory.get_all_cars.png" width="200" alt="">
+</p>
+Figure 2: Docker Compose setup showing successful provisioning of all dependent services required by the system. 
+<p>
+  <img src="media_files/usage_screenshots/docker-compose%20results.png" width="200" alt="">
+</p>
+Figure 3: Monitoring metrics showing the performance and health of the Car Inventory service.
+<p>
+  <img src="media_files/usage_screenshots/metrics.png" width="200" alt="">
+</p>
+Figure 4: Test execution results for the car inventory service, showing running and passed tests.
+<p>
+  <img src="media_files/usage_screenshots/tests.png" width="100" alt="">
+</p>
